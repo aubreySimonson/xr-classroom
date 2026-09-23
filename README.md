@@ -9,7 +9,7 @@ If you have ANY questions about how to use it, please contact me at simonson.au@
 Unity is very picky about what version you are using!!
 This project is in unity version 6000.0.51f1 and you should not open it in anything else or it will definitely break!
 If you're new to github, don't be intimidated by all of the things that seem to want you type stuff into the terminal. You can just download a zip file, unzip it, and open that through the Unity hub. 
-![[downloadzip.jpg]]
+![The green "Code" button on GitHub, expanded to show the "Download ZIP" option](README_Images/downloadzip.jpg)
 
 
 ## Table of contents
@@ -25,8 +25,7 @@ If you're new to github, don't be intimidated by all of the things that seem to 
 
 This project is built on top of **Unity's official VR Multiplayer project template** — the one Unity ships as a starting point for networked VR apps, built on XR Interaction Toolkit, Netcode for GameObjects, and Unity Gaming Services (Lobby, Relay, Vivox, Authentication).
 
-![[vrmultiplayertemplate.jpg]]
-^^^this one
+![Unity Hub's New Project screen with the VR Multiplayer template selected](README_Images/vrmultiplayertemplate.jpg)
 
 XR Classroom **simplifies** that template significantly, and removes a lot of its functionality in exchange for something smaller and easier to understand. Concretely, this project:
 
@@ -100,7 +99,7 @@ If you're trying to figure out why something looks right on your own screen but 
 
 ### Costume Closet: how avatar customization works
 
-![[costumecloset.jpg]]
+![The Costume Closet in the scene](README_Images/costumecloset.jpg)
 
 The **Costume Closet** is a collection of heads and a collection of bodies that a player can put on. The obvious way to implement this would be "send the newly-chosen prefab to every other machine over the network" — but that doesn't actually work, because a 3D model is too much data to reasonably send around every time someone changes clothes.
 
@@ -113,11 +112,11 @@ Instead: **every client already has an identical copy of the full list of availa
 1. Drag your 3D model into the scene.
 2. Duplicate one of the existing **Garment Button**s in the Costume Closet.
 3. Delete whatever model is currently sitting inside that duplicated button.
-	1. ![[garment_button.jpg]]
+	1. ![A duplicated Garment Button with its placeholder model deleted](README_Images/garment_button.jpg)
 	2. in this case it would be SquareHead
 4. Make your 3D model a child of the Garment Button.
 5. On the Garment Button's **Wearable Garment** component, point the **Garment Prefab** field at your 3D model (the one you just made a child of it).
-	1. ![[wearable_garment.jpg]]
+	1. ![The Wearable Garment component's Garment Prefab field](README_Images/wearable_garment.jpg)
 6. Set **Garment Type** to whichever it is: **Head** or **Body**.
 7. Adjust where it is on the shelf to not look stupid.
 
