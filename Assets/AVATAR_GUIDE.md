@@ -1,12 +1,12 @@
-# Creating Avatars for MoreBasic
+# Creating Avatars for XR Classroom
 
-This guide explains how to prepare an avatar in Blender and connect it to the MoreBasic
+This guide explains how to prepare an avatar in Blender and connect it to the XR Classroom
 multiplayer avatar system in Unity. It assumes familiarity with basic Blender modeling
 and FBX export, but no prior knowledge of this Unity project.
 
 ## The short version
 
-MoreBasic avatars are currently **part-based puppets**, not rigged humanoids.
+XR Classroom avatars are currently **part-based puppets**, not rigged humanoids.
 At minimum, make separate visible objects for:
 
 1. Head.
@@ -28,7 +28,7 @@ Optional extras:
 | Player color | A suitable material property | Currently requires additional avatar-specific setup |
 
 The safest workflow is to keep the networking/tracking root from the existing
-`MoreBasic Network Avatar` prefab and replace only its visual model.
+`XRClassroomAvatarBase` prefab and replace only its visual model.
 
 ## How the system is divided
 
@@ -75,7 +75,7 @@ meaningful. Applying rotation and scale makes Blender, FBX, and Unity agree abou
 coordinate space.
 
 Armatures are intentionally out of scope for now. If a source model has an armature, bake or
-convert it into separate head/body/hand objects before bringing it into the MoreBasic avatar
+convert it into separate head/body/hand objects before bringing it into the XR Classroom avatar
 pipeline.
 
 ### 3. Prepare a talking-mouth shape key, if desired
@@ -125,7 +125,7 @@ scale and orientation matters more than copying settings blindly.
 
 ## Importing into Unity
 
-1. Put the FBX in an avatar-specific folder under `Assets/MoreBasic` or another project-owned
+1. Put the FBX in an avatar-specific folder under `Assets/Avatars` or another project-owned
    content folder.
 2. Select it in the Project window.
 3. Inspect the **Model**, **Rig**, **Animation**, and **Materials** tabs.
@@ -140,7 +140,7 @@ Test the mouth blend-shape slider manually. The eyes and top of the head should 
 Do not build a network player from scratch for each visual design. Duplicate the existing owned
 prefab:
 
-`Assets/MoreBasic/Prefabs/Player/MoreBasic Network Avatar.prefab`
+`Assets/Prefabs/Player/XRClassroomAvatarBase.prefab`
 
 Give the duplicate a clear avatar-specific name. Keep these parts:
 
@@ -211,27 +211,48 @@ the event. This keeps the core voice system independent of any particular visual
 Use the remapping curve to create a noise threshold, exaggerate quiet speech, or limit the
 response without changing the receiving component.
 
-## Creating an offline avatar
+## The offline preview avatar
 
-The offline avatar appears before joining a multiplayer session. Start from:
+Before you're connected to a session, you still need to see your own head and body (in a mirror,
+looking down at yourself, etc.), and the Costume Closet needs something local to update the
+instant you try something on. There is no separate "offline avatar" prefab to build or maintain
+for this — it's handled by one object already sitting in the scene.
 
-`Assets/MoreBasic/Prefabs/Player/MoreBasic Offline Avatar.prefab`
+That object is **`OfflineAvatarPreview`**. It holds its own `AvatarPositioner` with **Is Self**
+checked, which is what tells `AvatarPositioner` to read live head/hand tracking directly instead
+of waiting on networked pose data — offline, there's no network connection to read from yet.
+Concretely:
 
-It uses the same `AvatarPositioner`, but its tracked-head target is filled by
-`LocalHeadPoseSource` rather than the network.
+- Its tracked-head target resolves to your XR camera. `LocalHeadPoseSource` (rather than a
+  networked transform) is what supplies that pose.
+- Its **Head Object** / **Body Object** are the same transforms the Costume Closet's `Head Parent`
+  / `Body Parent` point at. That's the important part for avatar authoring: the Costume Closet
+  doesn't have a separate "offline" and "online" target to keep in sync — trying on a garment
+  updates `OfflineAvatarPreview`'s head or body directly, so whatever you're wearing before you
+  connect is exactly what `AvatarCostumeSync` tells everyone else you're wearing once you do.
+- `OfflineAvatarVisibility` hides `OfflineAvatarPreview`'s visuals once you connect (at that point
+  `XRClassroomAvatarBase` is what's showing you, including to yourself) and shows them again if
+  you disconnect. It keeps listening for connection changes the whole time, so this handoff keeps
+  working across repeated connects/disconnects, not just the first one.
 
-Keep `OfflineAvatarVisibility`. It hides the visual model after connecting while leaving its
-connection listener active, allowing the offline avatar to reappear after disconnecting.
+If you're building a new avatar, you generally don't need to touch `OfflineAvatarPreview` directly
+— it already points at the same head/body targets the Costume Closet manages. You only need to
+care about it if you're changing how the *default* (not-yet-customized) look works, or debugging
+why something looks right once connected but wrong before connecting (or vice versa) — in which
+case, this object, not `XRClassroomAvatarBase`, is what you were actually looking at.
 
-For consistent visuals, use the same imported model and equivalent pose settings in the offline
-and network avatar prefabs.
+> One loose end from before this rewrite: the transform `OfflineAvatarPreview`'s head and body
+> objects live under is still internally named `MoreBasicAvatarBase` in the scene, left over from
+> before the project was renamed. It's harmless — nothing reads that name — but worth renaming
+> next time you're in there, so it stops looking like a second copy of the `XRClassroomAvatarBase`
+> prefab.
 
 ## Registering an avatar for spawning
 
-At present, `MoreBasic Network Manager` has one **Player Prefab** reference. To make a new avatar
+At present, `XR Classroom Network Manager` has one **Player Prefab** reference. To make a new avatar
 the default network avatar:
 
-1. Open `Assets/MoreBasic/Prefabs/Managers/MoreBasic Network Manager.prefab`.
+1. Open `Assets/Prefabs/Managers/XR Classroom Network Manager.prefab`.
 2. Locate the active Netcode configuration's **Player Prefab** field.
 3. Assign the new network-avatar prefab.
 4. Save the prefab.
@@ -250,7 +271,7 @@ Until that is implemented, swap the Player Prefab to test one avatar at a time.
 - Head, body, left hand, and right hand are separate assignable objects.
 - Face pieces remain parented to the head object when entering Play mode.
 
-### Offline in MoreBasicScene
+### Offline in the XRClassroom scene
 
 - Avatar appears before connecting.
 - Head follows the headset without tipping backward.
@@ -289,7 +310,7 @@ Until that is implemented, swap the Player Prefab to test one avatar at a time.
 - If this happens while a blend shape changes, the movement is inside the mesh vertices rather
   than on the GameObject Transform.
 - Repair the shape key in Blender or split that rigid part into its own child GameObject.
-- Armature-driven deformation is out of scope for MoreBasic avatars right now.
+- Armature-driven deformation is out of scope for XR Classroom avatars right now.
 
 ### Mouth moves backward
 
