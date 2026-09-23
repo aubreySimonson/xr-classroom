@@ -1,0 +1,65 @@
+# ==== Unity generated (local caches/output, never source) ====
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# ==== IDE / tooling (regenerated automatically by Unity) ====
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+*.pidb.meta
+*.pdb.meta
+*.mdb.meta
+
+# ==== Build artifacts ====
+sysinfo.txt
+crashlytics-build.properties
+*.apk
+*.aab
+*.app
+*.unitypackage
+
+# ==== Addressables ====
+/[Aa]ssets/[Aa]ddressableAssetsData/*/*.bin*
+/[Aa]ssets/[Ss]treamingAssets/aa.meta
+/[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# ==== OS cruft ====
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ==== Android / Gradle ====
+.gradle/
+ExportedObj/
+.consulo/
+
+# ==== Misc local tooling ====
+.utmp/
+~UnityDirMonSyncFile~*
+
+# ==== Previous VCS (project used Unity VCS/Plastic before this) ====
+/.plastic/
+
+# ==== SENSITIVE: Android signing keystore. Never commit — share this file and
+# its password out-of-band (not in the repo) with whoever needs to sign builds. ====
+*.keystore
